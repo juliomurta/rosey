@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+
 import 'models/LoginData.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
- // Logindata _logindata = new Logindata();
-  //GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+
+  final Logindata _logindata = Logindata();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: SafeArea (
+        body: SafeArea(
           child: Column(
             children: [
-             Column(
+              Column(
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 48),
@@ -30,76 +37,101 @@ class MainApp extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
-                  )// Other widgets go below the title
+                    ),
+                  ), // Other widgets go below the title
                 ],
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Username",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(height: 8),
-                    TextField(
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: "Digite seu email",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (String? inValue) {
+                          if (inValue == null || inValue.isEmpty) {
+                            return "Campo obrigatório";
+                          }
+                          
+                          return null;
+                        },
+                        onSaved: (String? inValue) {
+                          _logindata.username = inValue!;
+                        },
+                        decoration: InputDecoration(
+                          hintText: "none@none.com",
+                          labelText: "Email"
+                        ),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Senha",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(height: 8),
-                    TextField(
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        hintText: "Digite sua senha",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                      SizedBox(height: 8),
+                      TextFormField(
+                        obscureText: true,
+                        validator: (String? inValue) { 
+                          if (inValue == null || inValue.isEmpty) {
+                            return "Campo obrigatório";
+                          } 
+                          return null;
+                        },
+                        onSaved: (String? inValue) {
+                          _logindata.password = inValue!;
+                          print(_logindata.password);
+                        }, 
+                        decoration: InputDecoration(
+                          hintText: "Senha",
+                          labelText: "Senha"
+                        )
                       ),
-                    ),                    
-                    SizedBox(height: 8),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Text('Lembrar senha'),
-                      value: false,
-                      onChanged: (bool? inValue) {
-                        print("oi mamae");
-                      }
-                    ),
-                    SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF3B82F6),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                      SizedBox(height: 8),
+                      CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text('Lembrar senha'),
+                        value: _logindata.rememberPassword,
+                        onChanged: (bool? inValue) {                        
+                          setState(() {
+                            _logindata.rememberPassword = inValue!;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF3B82F6),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
                           ),
+                          onPressed: () {
+                            final form = _formKey.currentState;
+                            if (form == null || !form.validate()) return;
+
+                            form.save();
+
+                            print("dados do form");
+                            print(_logindata.username);
+                            print(_logindata.password);
+                            print(_logindata.rememberPassword);
+                          },
+                          child: Text("Entrar"),
                         ),
-                        onPressed: () => print("oi"),
-                        child: Text("Entrar"),
                       ),
-                    )
-                  ]
+                    ],
+                  ),
                 ),
-              )
-            ]
-          )          
-        )
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
